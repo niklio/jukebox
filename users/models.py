@@ -16,7 +16,7 @@ class UserProfile(models.Model):
     @classmethod
     def create_profile(cls, user):
         try:
-            return cls.object.get(user=user)
+            return cls.objects.get(user=user)
         except cls.DoesNotExist:
             pass
 

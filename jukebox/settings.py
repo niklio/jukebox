@@ -51,6 +51,9 @@ INSTALLED_APPS = (
     # 3rd party
     'corsheaders',
     'rest_framework',
+
+    'users',
+    'pods',
 )
 
 MIDDLEWARE_CLASSES = (
