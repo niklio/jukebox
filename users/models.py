@@ -22,9 +22,11 @@ class UserProfile(models.Model):
 
         profile = cls()
         profile.user = user
+        profile.is_host = False
         for attr in ('username', 'email'):
             setattr(profile, attr, getattr(user, attr))
 
+        profile.save()
         return profile
 
     @property

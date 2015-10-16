@@ -7,6 +7,10 @@ class Pod(models.Model):
 
     date_created = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def qr_code_url(self):
+        return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=%s' % self.id
+
     def save(self, *args, **kwargs):
         super(Pod, self).save(*args, **kwargs)
 
