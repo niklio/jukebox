@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    is_host = serializers.Field()
+    is_host = serializers.ReadOnlyField()
     pod = serializers.PrimaryKeyRelatedField(source='pod_id', read_only=True)
 
     class Meta:
