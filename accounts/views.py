@@ -5,10 +5,11 @@ from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from rest_framework_jwt.views import api_settings
+from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from accounts.models import UserProfile
-from accounts.permissions import IsAdminJWT
+from accounts.permissions import IsAdminJWT, IsMyJWT
 from accounts.serializers import UserSerializer, UserProfileSerializer
 
 
@@ -18,8 +19,19 @@ class AccountViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
 
     def list(self, request):
-        permissions = IsAdminJWT()
-        if not permissions.has_permission(request, self):
+        try:
+            token = request.META['HTTP_AUTHORIZATION']
+            token = token.split(' ')[-1]
+        except:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        serializer = VerifyJSONWebTokenSerializer()
+
+        serialized = serializer.validate({"token": token})
+        username = serialized['user']
+
+        user = User.objects.get(username=username)
+        if not user.is_superuser:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         queryset = UserProfile.objects.all()
@@ -48,8 +60,9 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
+        serializer = VerifyJSONWebTokenSerializer()
         queryset = User.objects.all()
-        user = get_object_or_404(queryset, pk=pk)
+        user = get_object_or_404(queryset, username=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
