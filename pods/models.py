@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Pod(models.Model):
+    host = models.ForeignKey(UserProfile, related_name='hosted_pod')
+    date_created = models.DateTimeField()
