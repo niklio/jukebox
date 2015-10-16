@@ -22,7 +22,6 @@ class UserProfile(models.Model):
 
         profile = cls()
         profile.user = user
-        profile.is_host = False
         for attr in ('username', 'email'):
             setattr(profile, attr, getattr(user, attr))
 
@@ -32,7 +31,4 @@ class UserProfile(models.Model):
     @property
     def is_host(self):
         return self.hosted_pod is not None
-
-    def __unicode__(self):
-        return unicode(self.user)
     

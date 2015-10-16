@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import UserProfile
+from accounts.models import UserProfile
 
 class Pod(models.Model):
 

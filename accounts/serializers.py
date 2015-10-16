@@ -11,16 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    is_host = serializers.ReadOnlyField()
     pod = serializers.PrimaryKeyRelatedField(source='pod_id', read_only=True)
 
     @property
-    def username(self):
-        return self.user.username
-
-    @property
-    def email(self):
-        return self.user.email
+    def is_host(self):
+        return self == pod.host
 
     class Meta:
         model = UserProfile

@@ -52,7 +52,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'rest_framework',
 
-    'users',
+    'accounts',
     'pods',
 )
 
