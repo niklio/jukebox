@@ -31,4 +31,3 @@ class UserProfile(models.Model):
     @property
     def is_host(self):
         return self.hosted_pod is not None
-    

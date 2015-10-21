@@ -1,51 +1,35 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 from rest_framework_jwt.views import api_settings
-from rest_framework_jwt.serializers import VerifyJSONWebTokenSerializer
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from accounts.models import UserProfile
-from accounts.permissions import IsAdminJWT, IsMyJWT
+from accounts.permissions import IsCreationOrIsAuthenticated
 from accounts.serializers import UserSerializer, UserProfileSerializer
 
 
 class AccountViewSet(viewsets.ModelViewSet):
 
+    permission_classes = (IsCreationOrIsAuthenticated, )
+    authentication_classes = (JSONWebTokenAuthentication, )
     serializer_class = UserProfileSerializer
     queryset = User.objects.all()
 
     def list(self, request):
-        try:
-            token = request.META['HTTP_AUTHORIZATION']
-            token = token.split(' ')[-1]
-        except:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
-        serializer = VerifyJSONWebTokenSerializer()
-
-        serialized = serializer.validate({"token": token})
-        username = serialized['user']
-
-        user = User.objects.get(username=username)
-        if not user.is_superuser:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-
         queryset = UserProfile.objects.all()
         serializer = UserProfileSerializer(queryset, many=True)
-        return Response(serializer.data)
+
+        if request.user.is_superuser:
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def create(self, request):
-        serialized = UserSerializer(data=request.data)
-        if serialized.is_valid():
-            user = User.objects.create_user(
-                serialized.data['username'],
-                serialized.data['email'],
-                serialized.data['password']
-            )
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
 
             UserProfile.create_profile(user)
 
@@ -57,13 +41,30 @@ class AccountViewSet(viewsets.ModelViewSet):
 
             return Response({"token": token}, status=status.HTTP_201_CREATED)
         else:
-            return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
-        serializer = VerifyJSONWebTokenSerializer()
-        queryset = User.objects.all()
-        user = get_object_or_404(queryset, username=pk)
+        queryset = UserProfile.objects.all()
+        profile = get_object_or_404(queryset, username=pk)
+        serializer = UserProfileSerializer(profile)
+
+        if request.user.is_superuser or request.user == profile.user:
+            return Response(serializer.data)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+    def destroy(self, request, pk=None):
+        user = User.objects.get(username=pk)
+        profile = UserProfile.objects.get(username=pk)
         serializer = UserSerializer(user)
-        return Response(serializer.data)
 
-
+        if profile or user:
+            if request.user.is_superuser or request.user == profile.user:
+                profile.delete()
+                user.delete()
+                return Response(status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
