@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 from django.db import models
 
 
@@ -14,13 +16,13 @@ class UserProfile(models.Model):
     last_seen_on = models.DateTimeField(null=True, blank=True)
 
     @classmethod
-    def create_profile(cls, user):
+    def create_profile(self, user):
         try:
-            return cls.objects.get(user=user)
-        except cls.DoesNotExist:
+            return self.objects.get(user=user)
+        except self.DoesNotExist:
             pass
 
-        profile = cls()
+        profile = self()
         profile.user = user
         for attr in ('username', 'email'):
             setattr(profile, attr, getattr(user, attr))

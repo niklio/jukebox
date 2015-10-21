@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+from rest_framework.viewsets import ModelViewSet
+from rest_framework import status
 from rest_framework_jwt.views import api_settings
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
@@ -9,16 +10,14 @@ from accounts.models import UserProfile
 from accounts.permissions import IsCreationOrIsAuthenticated
 from accounts.serializers import UserSerializer, UserProfileSerializer
 
-
-class AccountViewSet(viewsets.ModelViewSet):
+class AccountViewSet(ModelViewSet):
 
     permission_classes = (IsCreationOrIsAuthenticated, )
     authentication_classes = (JSONWebTokenAuthentication, )
     serializer_class = UserProfileSerializer
-    queryset = User.objects.all()
+    queryset = UserProfile.objects.all()
 
     def list(self, request):
-        queryset = UserProfile.objects.all()
         serializer = UserProfileSerializer(queryset, many=True)
 
         if request.user.is_superuser:
@@ -30,7 +29,6 @@ class AccountViewSet(viewsets.ModelViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-
             UserProfile.create_profile(user)
 
             jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -44,7 +42,6 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
-        queryset = UserProfile.objects.all()
         profile = get_object_or_404(queryset, username=pk)
         serializer = UserProfileSerializer(profile)
 
@@ -57,8 +54,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     def destroy(self, request, pk=None):
         user = User.objects.get(username=pk)
         profile = UserProfile.objects.get(username=pk)
-        serializer = UserSerializer(user)
-
+        
         if profile or user:
             if request.user.is_superuser or request.user == profile.user:
                 profile.delete()
