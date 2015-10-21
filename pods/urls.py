@@ -1,8 +1,8 @@
-from django.conf.urls import patterns, include, url
+from rest_framework.routers import DefaultRouter
 
-from pods import views
+from pods.views import PodViewSet
 
-urlpatterns = patterns(
-    '',
+router = DefaultRouter()
+router.register('', PodViewSet)
 
-)
+urlpatterns = router.urls

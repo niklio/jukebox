@@ -12,6 +12,6 @@ urlpatterns = patterns(
     url(r'^auth/verify', 'rest_framework_jwt.views.verify_jwt_token'),
 
     # APIs
-    url(r'^api/', include('accounts.urls')),
-    url(r'^api/pods/', include('pods.urls')),
+    url(r'^api/accounts', include('accounts.urls')),
+    url(r'^api/pods', include('pods.urls')),
 )
