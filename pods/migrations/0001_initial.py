@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=50)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
-                ('host', models.OneToOneField(related_name='hosted_pod', to='accounts.UserProfile')),
+                ('host', models.ForeignKey(related_name='hosted_pod', to='accounts.UserProfile')),
             ],
         ),
     ]
