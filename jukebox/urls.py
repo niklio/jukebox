@@ -4,7 +4,7 @@ from django.contrib import admin
 urlpatterns = patterns(
     '',
     
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin', include(admin.site.urls)),
 
     # auth
     url(r'^auth/login', 'rest_framework_jwt.views.obtain_jwt_token'),

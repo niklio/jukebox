@@ -1,13 +1,15 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
-from pods.serializers import PodSerializer
-from pods.models import Pod
-from accounts.models import UserProfile
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
+from accounts.models import UserProfile
+from pods.serializers import PodSerializer
+from pods.models import Pod
+
 class PodViewSet(ModelViewSet):
-    permission_classes = ()
+    permission_classes = (IsAuthenticated, )
     authentication_classes = (JSONWebTokenAuthentication, )
     serializer_class = PodSerializer
     queryset = Pod.objects.all()
@@ -21,14 +23,15 @@ class PodViewSet(ModelViewSet):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def create(self, request):
-        host = UserProfile.objects.get(username=request.user)
-        print host.id
-        data = {'host': host.id, 'name': request.name}
-        serializer = PodSerializer(data=data)
+
+        serializer = PodSerializer(data={
+            'host': request.user.profile.id
+        })
+
         if serializer.is_valid():
             pod = serializer.save()
-            return Response({"location": ("/api/pods/" + str(pod.id))}, status=status.HTTP_201_CREATED)
-        return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request):
         pass

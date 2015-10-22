@@ -18,7 +18,7 @@ class AccountViewSet(ModelViewSet):
     queryset = UserProfile.objects.all()
 
     def list(self, request):
-        serializer = UserProfileSerializer(queryset, many=True)
+        serializer = UserProfileSerializer(self.queryset, many=True)
 
         if request.user.is_superuser:
             return Response(serializer.data)
@@ -42,7 +42,7 @@ class AccountViewSet(ModelViewSet):
             return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
-        profile = get_object_or_404(queryset, username=pk)
+        profile = get_object_or_404(self.queryset, username=pk)
         serializer = UserProfileSerializer(profile)
 
         if request.user.is_superuser or request.user == profile.user:
