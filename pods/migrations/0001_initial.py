@@ -7,7 +7,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0001_initial'),
     ]
 
     operations = [
@@ -15,9 +14,8 @@ class Migration(migrations.Migration):
             name='Pod',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=50)),
                 ('date_created', models.DateTimeField(auto_now_add=True)),
-                ('host', models.ForeignKey(related_name='hosted_pod', to='accounts.UserProfile')),
+                ('name', models.CharField(max_length=50)),
             ],
         ),
     ]

@@ -29,7 +29,7 @@ class AccountViewSet(ModelViewSet):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            UserProfile.create_profile(user)
+            user_profile = UserProfile.create_profile(user)
 
             jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
             jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -37,7 +37,8 @@ class AccountViewSet(ModelViewSet):
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
 
-            return Response({"token": token}, status=status.HTTP_201_CREATED)
+            return Response({"token": token}, status=status.HTTP_201_CREATED,
+                            headers={'Location': user_profile.username})
         else:
             return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -49,7 +50,6 @@ class AccountViewSet(ModelViewSet):
             return Response(serializer.data)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
-
 
     def destroy(self, request, pk=None):
         user = User.objects.get(username=pk)

@@ -7,4 +7,4 @@ class PodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pod
-        fields = ('id', 'host', 'qr_code_url')
+        fields = ('id', 'host', 'name', 'qr_code_url')
