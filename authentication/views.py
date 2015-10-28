@@ -28,24 +28,3 @@ class AccountViewSet(viewsets.ModelViewSet):
             return (permissions.AllowAny(),)
 
         return (permissions.IsAuthenticated(), IsAccountOwner())
-    
-    def create(self, request):
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            account = Account.objects.create_user(**serializer.validated_data)
-
-            jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-            jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-            account.email = account.username
-
-            payload = jwt_payload_handler(account)
-            token = jwt_encode_handler(payload)
-
-            return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
-        else:
-            return Response({
-                'status': 'Bad request',
-                'message': 'Account could not be created with received data'
-            }, status=status.HTTP_400_BAD_REQUEST)
