@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     # Local
     'authentication',
     'pods',
+    'songs',
 )
 
 MIDDLEWARE_CLASSES = (
