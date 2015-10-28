@@ -2,7 +2,7 @@ from django.db import models
 
 class Pod(models.Model):
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
 
     host = models.OneToOneField('authentication.account', related_name='hosted_pod')
 
@@ -11,7 +11,3 @@ class Pod(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
-
-    @property
-    def qr_code_url(self):
-        return 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=%{}'.format(self.id)

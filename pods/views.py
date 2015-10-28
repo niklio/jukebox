@@ -15,15 +15,14 @@ class PodViewSet(viewsets.ModelViewSet):
     """
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JSONWebTokenAuthentication,)
-    lookup_field = 'name'
     queryset = Pod.objects.all()
     serializer_class = PodSerializer
 
     def create(self, request):
-        print vars(request)
         request.data.update({'host': request.user.id})
         serializer = self.serializer_class(data = request.data)
 
+        print serializer.is_valid()
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
