@@ -39,11 +39,7 @@ class PodViewSet(viewsets.ModelViewSet):
                 'message': 'Not authorized to create a pod hosted by {}. Check your authentication header'.format(account.username)
             }, status=status.HTTP_401_UNAUTHORIZED)
 
-        pod = serializer.save()
-        account.pod = pod
+        account.pod = serializer.save()
         account.save()
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, pk=None):
-        print "HERE"
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
