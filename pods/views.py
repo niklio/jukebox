@@ -26,20 +26,23 @@ class PodViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(data=request.data)
 
         if not serializer.is_valid():
-            return Response({
-                'status': 'Bad request',
-                'message': 'Pod could not be created with received data'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        account = Account.objects.get(username=serializer.data['host'])
+        account = Account.objects.get(username=serializer.validated_data['host'])
 
         if account.username != request.user.username:
             return Response({
-                'status': 'Unauthorized',
-                'message': 'Not authorized to create a pod hosted by {}. Check your authentication header'.format(account.username)
-            }, status=status.HTTP_401_UNAUTHORIZED)
+                'status': 'Forbidden',
+                'message': 'You do not have permission to create a pod hosted by user: {}.'.format(account.username)
+            }, status=status.HTTP_403_FORBIDDEN)
 
         account.pod = serializer.save()
         account.save()
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(
+            serializer.data,
+            status=status.HTTP_201_CREATED
+        )
