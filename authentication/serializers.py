@@ -6,6 +6,7 @@ from authentication.models import Account
 
 
 class AccountSerializer(serializers.ModelSerializer):
+
     password = serializers.CharField(write_only=True, required=False)
 
     class Meta:

@@ -15,8 +15,10 @@ class AccountViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
+    lookup_field = 'username'
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
+
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -43,4 +45,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
             return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'status': 'Bad request',
+                'message': 'Account could not be created with received data'
+            }, status=status.HTTP_400_BAD_REQUEST)
