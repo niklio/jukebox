@@ -52,7 +52,8 @@ INSTALLED_APPS = (
     'corsheaders',
     'rest_framework',
 
-    'accounts',
+    # Local
+    'authentication',
     'pods',
 )
 
@@ -112,26 +113,10 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
 }
 
-SOCIAL_AUTH_FACEBOOK_KEY = get_env_setting('FB_KEY')
-SOCIAL_AUTH_FACEBOOK_SECRET = get_env_setting('FB_SECRET')
-SOCIAL_AUTH_COMPLETE_URL_NAME = 'social:complete'
-SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
-
-SOCIAL_AUTH_PIPELINE = (
-    'social.pipeline.social_auth.social_details',
-    'social.pipeline.social_auth.social_uid',
-    'social.pipeline.social_auth.auth_allowed',
-    'social.pipeline.social_auth.social_user',
-    'social.pipeline.user.get_username',
-    'social.pipeline.user.create_user',
-    'pods.social_auth.save_profile',
-    'social.pipeline.social_auth.associate_user',
-    'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details',
-)
+AUTH_USER_MODEL = 'authentication.Account'
 
 AUTHENTICATION_BACKENDS = (
-    'social.backends.facebook.FacebookOAuth2',
+    'authentication.backends.AccountAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 )
 

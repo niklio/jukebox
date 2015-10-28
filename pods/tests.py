@@ -11,4 +11,4 @@ pod = client.post('/api/pods/', {'name': 'test' + str(int(time()))})
 
 print "get", client.get('/api/pods/' + str(pod.data['id']))
 
-#print account.data, pod.data
+print account.data, pod.data
