@@ -30,10 +30,17 @@ class AccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser):
+
+    pod = models.ForeignKey(
+        'pods.Pod',
+        related_name='members',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
+
     username = models.CharField(max_length=40, unique=True)
     email = models.EmailField()
-
-    pod = models.ForeignKey('pods.Pod', null=True, blank=True, related_name='members')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

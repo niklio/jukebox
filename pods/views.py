@@ -38,3 +38,6 @@ class PodViewSet(viewsets.ModelViewSet):
 
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, pk=None):
+        print "HERE"
