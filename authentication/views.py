@@ -15,7 +15,6 @@ class AccountViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    lookup_field = 'username'
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
 

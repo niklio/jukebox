@@ -42,10 +42,11 @@ class Account(AbstractBaseUser):
 
     USERNAME_FIELD = 'username'
 
-    def __unicode__(self):
-        return self.username
-
     @property
     def is_host(self):
-        return self.hosted_pod is not None
+        return hasattr(self, 'hosted_pod') or False
+
+    def __unicode__(self):
+        return self.username
+    
     
