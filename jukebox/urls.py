@@ -4,10 +4,12 @@ from rest_framework import routers
 
 from authentication.views import AccountViewSet
 from pods.views import PodViewSet
+from songs.views import SongViewSet
 
 router = routers.DefaultRouter()
 router.register(r'accounts', AccountViewSet)
 router.register(r'pods', PodViewSet)
+router.register(r'songs', SongViewSet)
 
 urlpatterns = patterns(
     '',

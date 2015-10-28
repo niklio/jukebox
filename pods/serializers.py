@@ -22,16 +22,16 @@ class PodSerializer(serializers.ModelSerializer):
 
     songs = serializers.SlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field='id',
-        queryset=Song.objects.all()
     )
     
     class Meta:
         model = Pod
         fields = (
             'id',
+            'name',
             'host',
             'members',
-            'name'
+            'songs',
         )

@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from rest_framework import serializers
 
 from authentication.models import Account
+from songs.models import Song
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -11,9 +12,8 @@ class AccountSerializer(serializers.ModelSerializer):
 
     submitted_songs = serializers.SlugRelatedField(
         many=True,
-        read_only=False,
+        read_only=True,
         slug_field='id',
-        queryset=Song.objects.all()
     )
 
     class Meta:
@@ -21,16 +21,18 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'pod', 'is_host',
+            'pod',
+            'is_host',
             'created_at',
             'updated_at',
-            'password'
+            'password',
+            'submitted_songs',
         )
         read_only_fields = (
             'pod',
             'is_host',
             'created_at',
-            'updated_at'
+            'updated_at',
         )
 
         def create(self, validated_data):

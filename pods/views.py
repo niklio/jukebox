@@ -5,9 +5,9 @@ from rest_framework.response import Response
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
+from authentication.models import Account
 from pods.models import Pod
 from pods.serializers import PodSerializer
-from authentication.models import Account
 
 
 class PodViewSet(viewsets.ModelViewSet):
