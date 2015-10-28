@@ -7,6 +7,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from pods.models import Pod
 from pods.serializers import PodSerializer
+from authentication.models import Account
 
 
 class PodViewSet(viewsets.ModelViewSet):
@@ -29,13 +30,18 @@ class PodViewSet(viewsets.ModelViewSet):
                 'message': 'Pod could not be created with received data'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        if serializer.data['host'] != request.user.username:
+        account = Account.objects.get(username=serializer.data['host'])
+
+        if account.username != request.user.username:
             return Response({
                 'status': 'Unauthorized',
-                'message': 'Not authorized to create a pod hosted by {}. Check your authentication header'.format(serializer.data['host'])
+                'message': 'Not authorized to create a pod hosted by {}. Check your authentication header'.format(account.username)
             }, status=status.HTTP_401_UNAUTHORIZED)
 
-        serializer.save()
+        pod = serializer.save()
+        account.pod = pod
+        account.save()
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def delete(self, request, pk=None):
