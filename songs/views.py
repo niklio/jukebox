@@ -21,6 +21,7 @@ class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
 
@@ -51,4 +52,3 @@ class SongViewSet(viewsets.ModelViewSet):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
-

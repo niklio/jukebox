@@ -35,3 +35,17 @@ class PodSerializer(serializers.ModelSerializer):
             'members',
             'songs',
         )
+
+    def create(self, validated_data):
+        members = validated_data.pop('members')
+        instance = Pod.objects.create(**validated_data)
+
+        instance.host.pod = instance
+        instance.host.save()
+
+        for member in members:
+            member.pod = instance
+            member.save()
+        return instance
+
+
