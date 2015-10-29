@@ -8,6 +8,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from authentication.models import Account
 from pods.models import Pod
 from pods.serializers import PodSerializer
+from pods.permissions import IsMember
 
 from django.shortcuts import get_object_or_404
 
@@ -16,10 +17,19 @@ class PodViewSet(viewsets.ModelViewSet):
     API endpoint that allows pods to be viewed or edited.
     """
     lookup_field = 'name'
-    permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (JSONWebTokenAuthentication,)
     queryset = Pod.objects.all()
     serializer_class = PodSerializer
+
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return (permissions.IsAuthenticated(),)
+
+        if self.request.method == 'POST':
+            return (permissions.IsAuthenticated(),)
+
+        return (permissions.IsAuthenticated(), IsMember())
 
 
     def create(self, request):
@@ -39,9 +49,8 @@ class PodViewSet(viewsets.ModelViewSet):
                 'message': 'You do not have permission to create a pod hosted by user: {}.'.format(account.username)
             }, status=status.HTTP_403_FORBIDDEN)
 
-        account.pod = serializer.save()
-        account.save()
-
+        serializer.save()
+        
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED
