@@ -49,3 +49,18 @@ class PodSerializer(serializers.ModelSerializer):
         return instance
 
 
+    def update(self, instance, validated_data):
+        new_members = validated_data.pop('members')
+        instance.name = validated_data.get('name')
+
+        instance.members.clear()
+
+        instance.host.pod = instance
+        instance.host.save()
+
+        for member in new_members:
+            member.pod = instance
+            member.save()
+
+        return instance.save()
+
