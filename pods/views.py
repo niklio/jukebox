@@ -8,7 +8,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from authentication.models import Account
 from pods.models import Pod
 from pods.serializers import PodSerializer
-from pods.permissions import IsMember
+from pods.permissions import IsHost, IsMember
 
 
 class PodViewSet(viewsets.ModelViewSet):
@@ -27,6 +27,9 @@ class PodViewSet(viewsets.ModelViewSet):
 
         if self.request.method == 'POST':
             return (permissions.IsAuthenticated(),)
+
+        if self.request.method == 'DELETE':
+            return (permissions.IsAuthenticated(), IsHost())
 
         return (permissions.IsAuthenticated(), IsMember())
 
@@ -49,7 +52,7 @@ class PodViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_403_FORBIDDEN)
 
         serializer.save()
-        
+
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED

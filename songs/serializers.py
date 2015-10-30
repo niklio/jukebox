@@ -25,10 +25,10 @@ class SongSerializer(serializers.ModelSerializer):
             'id',
             'song_id',
             'title',
-            'duration',
-            'stream_url',
-            'artwork_url',
+            'album',
+            'artist',
             'played',
+            'skip',
             'pod',
             'submitted_by'
         )
