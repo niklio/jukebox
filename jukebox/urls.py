@@ -1,15 +1,20 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from rest_framework import routers
+
+from rest_framework.routers import DefaultRouter
+from rest_framework_nested.routers import NestedSimpleRouter
 
 from authentication.views import AccountViewSet
 from pods.views import PodViewSet
 from songs.views import SongViewSet
 
-router = routers.DefaultRouter()
+router = DefaultRouter()
 router.register(r'accounts', AccountViewSet)
 router.register(r'pods', PodViewSet)
 router.register(r'songs', SongViewSet)
+
+pods_router = NestedSimpleRouter(router, r'pods', lookup='pod')
+pods_router.register(r'songs', SongViewSet)
 
 urlpatterns = patterns(
     '',
@@ -23,4 +28,5 @@ urlpatterns = patterns(
 
     # APIs
     url(r'^api/', include(router.urls)),
+    url(r'^api/', include(pods_router.urls))
 )

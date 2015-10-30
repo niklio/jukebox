@@ -21,6 +21,14 @@ class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
 
+    def list(self, request, pod_name=None):
+        queryset = self.queryset
+        if pod_name:
+            pod = Pod.objects.get(name=pod_name)
+            queryset = queryset.filter(pod=pod)
+
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
