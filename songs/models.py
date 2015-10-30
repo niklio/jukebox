@@ -25,3 +25,8 @@ class Song(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    @property
+    def queued(self):
+        return not self.skip and not self.played
+    
