@@ -76,5 +76,6 @@ class SongViewSet(viewsets.ModelViewSet):
 
         return Response(
             serializer.data,
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_201_CREATED,
+            headers={'Location': '/api/songs/{0}'.format(serializer.data['id'])}
         )

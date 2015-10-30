@@ -48,5 +48,9 @@ class AccountViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             account = Account.objects.create_user(**serializer.validated_data)
 
-            return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
-        return Response(serializer._errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.validated_data,
+                status=status.HTTP_201_CREATED,
+                headers={'Location': '/api/accounts/{0}'.format(serializer.validated_data['username'])}
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
