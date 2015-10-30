@@ -20,6 +20,7 @@ class AccountManager(BaseUserManager):
 
         return account
 
+
     def create_superuser(self, username, password, **kwargs):
         account = self.create_user(username, password, **kwargs)
 
@@ -30,7 +31,7 @@ class AccountManager(BaseUserManager):
 
 
 class Account(AbstractBaseUser):
-
+    
     pod = models.ForeignKey(
         'pods.Pod',
         related_name='members',

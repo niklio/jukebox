@@ -4,6 +4,7 @@ from authentication.models import Account
 from pods.models import Pod
 
 class Song(models.Model):
+    
     song_id = models.BigIntegerField()
     title = models.CharField(max_length=255)
     album = models.CharField(max_length=255)
