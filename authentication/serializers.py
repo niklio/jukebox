@@ -22,7 +22,7 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'username',
-            'pod',
+            'pods',
             'is_host',
             'created_at',
             'updated_at',
@@ -30,7 +30,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'submitted_songs',
         )
         read_only_fields = (
-            'pod',
+            'pods',
             'is_host',
             'created_at',
             'updated_at',

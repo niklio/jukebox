@@ -32,12 +32,10 @@ class AccountManager(BaseUserManager):
 
 class Account(AbstractBaseUser):
     
-    pod = models.ForeignKey(
+    pods = models.ManyToManyField(
         'pods.Pod',
         related_name='members',
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL
+        blank=True
     )
 
     username = models.CharField(max_length=40, unique=True)
