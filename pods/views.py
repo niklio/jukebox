@@ -31,13 +31,14 @@ class PodViewSet(ModelViewSet):
             serializer.save()
             print serializer.data
             return Response(serializer.data, status=status.HTTP_201_CREATED,
-                            headers={'Location': ('/api/pods/' + serializer.data['name'])})
+                            headers={'Location': ('/api/pods/' + serializer.data['id'])})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        pod = get_object_or_404(self.queryset, name=pk)
+        pod = get_object_or_404(self.queryset, id=pk)
+        print pod.host_id
         if pod:
-            if pod.host == request.user.profile.id or request.user.is_superuser:
+            if pod.host_id == request.user.profile.id or request.user.is_superuser:
                 pod.delete()
                 return Response(status=status.HTTP_202_ACCEPTED)
             else:
@@ -45,5 +46,7 @@ class PodViewSet(ModelViewSet):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def retrieve(self, request):
-        pass
+    def retrieve(self, request, pk=None):
+        pod = get_object_or_404(self.queryset, id=pk)
+        serializer = PodSerializer(pod)
+        return Response(serializer.data)
