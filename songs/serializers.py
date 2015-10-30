@@ -30,6 +30,12 @@ class SongSerializer(serializers.ModelSerializer):
             'artist',
             'played',
             'skip',
+            'queued',
             'pod',
             'submitted_by'
+        )
+        read_only_fields = (
+            'played',
+            'skip',
+            'queued',
         )

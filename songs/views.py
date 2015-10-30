@@ -8,6 +8,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from authentication.models import Account
 from pods.models import Pod
 from songs.models import Song
+from songs.permissions import IsSubmitter
 from songs.serializers import SongSerializer
 
 
@@ -20,6 +21,16 @@ class SongViewSet(viewsets.ModelViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     queryset = Song.objects.all()
     serializer_class = SongSerializer
+
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return (permissions.IsAuthenticated(),)
+
+        if self.request.method == 'POST':
+            return (permissions.IsAuthenticated(),)
+
+        return (permissions.IsAuthenticated(), IsSubmitter())
 
 
     def list(self, request, account_username=None, pod_name=None):
