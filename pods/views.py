@@ -10,7 +10,6 @@ from pods.models import Pod
 from pods.serializers import PodSerializer
 from pods.permissions import IsHost, IsMember
 
-
 class PodViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows pods to be viewed or edited.
@@ -19,7 +18,6 @@ class PodViewSet(viewsets.ModelViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     queryset = Pod.objects.all()
     serializer_class = PodSerializer
-
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
