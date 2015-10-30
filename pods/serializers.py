@@ -26,6 +26,7 @@ class PodSerializer(serializers.ModelSerializer):
         slug_field='id',
     )
     
+    
     class Meta:
         model = Pod
         fields = (
@@ -35,6 +36,7 @@ class PodSerializer(serializers.ModelSerializer):
             'members',
             'songs',
         )
+
 
     def create(self, validated_data):
         members = validated_data.pop('members')

@@ -13,7 +13,11 @@ router.register(r'accounts', AccountViewSet)
 router.register(r'pods', PodViewSet)
 router.register(r'songs', SongViewSet)
 
+accounts_router = NestedSimpleRouter(router, r'accounts', lookup='account')
+accounts_router.register(r'songs', SongViewSet)
+
 pods_router = NestedSimpleRouter(router, r'pods', lookup='pod')
+pods_router.register(r'accounts', AccountViewSet)
 pods_router.register(r'songs', SongViewSet)
 
 urlpatterns = patterns(
@@ -28,5 +32,6 @@ urlpatterns = patterns(
 
     # APIs
     url(r'^api/', include(router.urls)),
-    url(r'^api/', include(pods_router.urls))
+    url(r'^api/', include(accounts_router.urls)),
+    url(r'^api/', include(pods_router.urls)),
 )
