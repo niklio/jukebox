@@ -11,3 +11,11 @@ class Pod(models.Model):
 
     def __unicode__(self):
         return unicode(self.name)
+
+    class Meta:
+        permissions = {
+            ('add_user', 'Can add users to the pod.'),
+            ('remove_user', 'Can remove users from the pod.'),
+            ('change_user_permissions', 'Can add or remove permissions from users in the pod.'),
+            ('manage_pod', 'Can manage pod settings.')
+        }

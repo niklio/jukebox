@@ -2,8 +2,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from django.db import models
 
-from multiselectfield import MultiSelectField
-
 class AccountManager(BaseUserManager):
     def create_user(self, username, password=None, **kwargs):
         if not username:
@@ -21,7 +19,6 @@ class AccountManager(BaseUserManager):
 
         return account
 
-
     def create_superuser(self, username, password, **kwargs):
         account = self.create_user(username, password, **kwargs)
 
@@ -36,23 +33,6 @@ class Membership(models.Model):
     account = models.ForeignKey('Account')
     date_joined = models.DateField()
 
-    ADD_SONGS = 'AS'
-    MANAGE_SONGS = 'MS'
-    ADD_USERS = 'AU'
-    MANAGE_USERS = 'MU'
-    MANAGE_POD = 'MP'
-    VOTE = 'VT'
-
-    PERMISSIONS_CHOICES = (
-        (ADD_SONGS, 'Add songs'),
-        (MANAGE_SONGS, 'Manage songs'),
-        (ADD_USERS, 'Add users'),
-        (MANAGE_USERS, 'Manage users'),
-        (MANAGE_POD, 'Manage pod'),
-        (VOTE, 'Vote')
-    )
-
-    permissions = MultiSelectField(choices=PERMISSIONS_CHOICES)
     invite_pending = models.BooleanField()
     playing_songs = models.BooleanField()
 

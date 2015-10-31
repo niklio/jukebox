@@ -20,7 +20,6 @@ class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
 
-
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return (permissions.AllowAny(),)
@@ -29,7 +28,6 @@ class AccountViewSet(viewsets.ModelViewSet):
             return (permissions.AllowAny(),)
 
         return (permissions.IsAuthenticated(), IsAccountOwner())
-
 
     def list(self, request, pod_name=None):
         queryset = self.queryset
@@ -40,7 +38,6 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
-
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
