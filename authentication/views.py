@@ -31,13 +31,8 @@ class AccountViewSet(viewsets.ModelViewSet):
         return (permissions.IsAuthenticated(), IsAccountOwner())
 
 
-    def list(self, request, pod_name=None):
-        queryset = self.queryset
-        
-        if pod_name:
-            pod = Pod.objects.get(name=pod_name)
-            queryset = queryset.filter(pod=pod)
-
+    def list(self, request):
+        queryset = Account.objects.all()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
@@ -51,6 +46,5 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(
                 serializer.validated_data,
                 status=status.HTTP_201_CREATED,
-                headers={'Location': '/api/accounts/{0}'.format(serializer.validated_data['username'])}
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

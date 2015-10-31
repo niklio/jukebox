@@ -54,5 +54,6 @@ class Account(AbstractBaseUser):
 
     def __unicode__(self):
         return self.username
+
     
     

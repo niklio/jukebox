@@ -35,14 +35,8 @@ class PodViewSet(viewsets.ViewSet):
 
 
     def list(self, request):
-        queryset = self.queryset
+        queryset = Pod.objects.all()
         serializer = PodSerializer(queryset, many=True)
-        return Response(serializer.data)
-
-
-    def retrieve(self, request, name=None):
-        pod = get_object_or_404(self.queryset, name=name)
-        serializer = PodSerializer(pod)
         return Response(serializer.data)
 
 
@@ -55,22 +49,17 @@ class PodViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        account = Account.objects.get(username=serializer.validated_data['host'])
+        host = Account.objects.get(username=serializer.validated_data['host'])
 
-        if account.username != request.user.username:
-            return Response({
+        if host.is_host:
+             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have permission to create a pod hosted by user: {}.'.format(account.username)
+                'message': 'This user already hosts a pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
-        if account.is_host:
-            return Response({
-                'status': 'Forbidden',
-                'message': 'You already host a pod.'
-            })
-
         pod = serializer.save()
-        account.pods.add(pod)
+        host.pods.add(pod)
+        request.user.pods.add(pod)
 
         return Response(
             serializer.data,
@@ -78,8 +67,16 @@ class PodViewSet(viewsets.ViewSet):
         )
 
 
+    def retrieve(self, request, name=None):
+        queryset = Pod.objects.all()
+        pod = get_object_or_404(queryset, name=name)
+        serializer = self.serializer_class(pod)
+        return Response(serializer.data)
+
+
     def update(self, request, name=None):
-        pod = get_object_or_404(self.queryset, name=name)
+        queryset = Pod.objects.all()
+        pod = get_object_or_404(queryset, name=name)
         serializer = self.serializer_class(pod, data=request.data)
 
         if not serializer.is_valid():
@@ -101,14 +98,13 @@ class PodViewSet(viewsets.ViewSet):
                         'message': 'Only the host may change the name of their pod.'
                     }, status=status.HTTP_403_FORBIDDEN)
 
-
         # The host can pass pod to a user without a hosted pod
         if host:
             if request.user == pod.host:
                 if host.is_host:
                     return Response({
                         'status': 'Forbidden',
-                        'message': 'This user already hosts a pod'
+                        'message': 'This user already hosts a pod.'
                     }, status=status.HTTP_403_FORBIDDEN)
                 else:
                     pod.host = host
@@ -131,3 +127,8 @@ class PodViewSet(viewsets.ViewSet):
         pod.host.pods.add(pod)
 
         return Response(pod, status=status.HTTP_200_OK)
+
+
+    def delete(self, request, name=None):
+        Pod.objects.get(name=name).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
