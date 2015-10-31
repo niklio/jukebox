@@ -20,7 +20,6 @@ class PodViewSet(viewsets.ViewSet):
     queryset = Pod.objects.all()
     serializer_class = PodSerializer
 
-
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
             return (permissions.IsAuthenticated(),)
@@ -33,20 +32,18 @@ class PodViewSet(viewsets.ViewSet):
 
         return (permissions.IsAuthenticated(), IsMember())
 
-
     def list(self, request):
         queryset = self.queryset
         serializer = PodSerializer(queryset, many=True)
         return Response(serializer.data)
-
 
     def retrieve(self, request, name=None):
         pod = get_object_or_404(self.queryset, name=name)
         serializer = PodSerializer(pod)
         return Response(serializer.data)
 
-
     def create(self, request):
+        request.data.add()
         serializer = self.serializer_class(data=request.data)
 
         if not serializer.is_valid():
@@ -63,12 +60,6 @@ class PodViewSet(viewsets.ViewSet):
                 'message': 'You do not have permission to create a pod hosted by user: {}.'.format(account.username)
             }, status=status.HTTP_403_FORBIDDEN)
 
-        if account.is_host:
-            return Response({
-                'status': 'Forbidden',
-                'message': 'You already host a pod.'
-            })
-
         pod = serializer.save()
         account.pods.add(pod)
 
@@ -76,7 +67,6 @@ class PodViewSet(viewsets.ViewSet):
             serializer.data,
             status=status.HTTP_201_CREATED
         )
-
 
     def update(self, request, name=None):
         pod = get_object_or_404(self.queryset, name=name)
