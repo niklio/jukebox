@@ -23,7 +23,6 @@ class AccountSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'pods',
-            'is_host',
             'created_at',
             'updated_at',
             'password',
@@ -31,7 +30,6 @@ class AccountSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'pods',
-            'is_host',
             'created_at',
             'updated_at',
         )

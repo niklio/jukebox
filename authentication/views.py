@@ -30,7 +30,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         return (permissions.IsAuthenticated(), IsAccountOwner())
 
     def list(self, request, pod_name=None):
-        queryset = self.queryset
+        queryset = Account.objects.all()
         
         if pod_name:
             pod = Pod.objects.get(name=pod_name)

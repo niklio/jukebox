@@ -9,8 +9,8 @@ class PodSerializer(serializers.ModelSerializer):
     members = serializers.SlugRelatedField(
         many=True,
         read_only=False,
+        queryset=Account.objects.all(),
         slug_field='username',
-        queryset=Account.objects.all()
     )
 
     songs = serializers.SlugRelatedField(

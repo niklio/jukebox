@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     # 3rd party
     'corsheaders',
     'rest_framework',
+    'guardian',
 
     # Local
     'authentication',
@@ -117,6 +118,7 @@ AUTH_USER_MODEL = 'authentication.Account'
 AUTHENTICATION_BACKENDS = (
     'authentication.backends.AccountAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
 )
 
 WSGI_APPLICATION = 'jukebox.wsgi.application'
@@ -178,3 +180,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(PROJECT_ROOT, 'static'),
 )
+
+# Guardian
+ANONYMOUS_USER_ID = -1
