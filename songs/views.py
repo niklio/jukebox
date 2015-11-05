@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
@@ -12,7 +12,7 @@ from songs.permissions import IsSubmitter
 from songs.serializers import SongSerializer
 
 
-class SongViewSet(viewsets.ModelViewSet):
+class SongViewSet(viewsets.ViewSet):
     """
     API endpoint that allows songs to be viewed or edited.
     """
@@ -34,7 +34,7 @@ class SongViewSet(viewsets.ModelViewSet):
 
 
     def list(self, request, account_username=None, pod_name=None):
-        queryset = self.queryset
+        queryset = Song.objects.all()
 
         if account_username:
             account = Account.objects.get(username=account_username)
@@ -48,7 +48,7 @@ class SongViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-    def create(self, request):
+    def create(self, request, account_name=None, pod_name=None):
         serializer = self.serializer_class(data=request.data)
 
         if not serializer.is_valid():
@@ -57,19 +57,25 @@ class SongViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        account = Account.objects.get(username=serializer.validated_data['submitted_by'])
-        pod = Pod.objects.get(name=serializer.validated_data['pod'])
+        if not account_name:
+            account_name = serializer.validated_data['submitted_by']
+
+        if not pod_name:
+            pod_name = serializer.validated_data['pod']
+
+        account = Account.objects.get(username=account_name)
+        pod = Pod.objects.get(name=pod_name)
 
         if account.username != request.user.username:
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have permission to submit a song as accounts: {}.'.format(account.username)
+                'message': 'You do not have permission to submit a song as this user.'
             }, status=status.HTTP_403_FORBIDDEN)
 
-        if not account.pod or account.pod.name != pod.name:
+        if not account.pods.filter(id=pod.id):
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have permission to submit a song to pod: {}'.format(pod.name)
+                'message': 'You do not have permission to submit a song to this pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
         serializer.save()
@@ -77,5 +83,18 @@ class SongViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED,
-            headers={'Location': '/api/songs/{0}'.format(serializer.data['id'])}
         )
+
+
+    def retrieve(self, request, id=None, account_name=None, pod_name=None):
+        queryset = Song.objects.all()
+
+        if account_name:
+            queryset.filter(submitted_by=account_name)
+
+        if pod_name:
+            queryset.filter(pod=pod_name)
+
+        song = get_object_or_404(queryset, id=id)
+        serializer = self.serializer_class(song)
+        return Response(serializer.data)

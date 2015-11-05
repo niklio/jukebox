@@ -8,13 +8,11 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from guardian.shortcuts import assign_perm, get_perms, get_perms_for_model, get_users_with_perms, remove_perm
 
+from jukebox.settings import POD_HOST_PERMISSIONS, POD_MEMBER_PERMISSIONS
 from authentication.models import Membership, Account
 from authentication.serializers import MembershipSerializer
 from pods.models import Pod
 from pods.serializers import PodSerializer
-
-host_permissions = ['add_accounts', 'remove_accounts', 'change_account_permissions', 'manage_pod']
-user_permissions = ['add_accounts']
 
 class PodViewSet(viewsets.ViewSet):
     """
@@ -53,8 +51,11 @@ class PodViewSet(viewsets.ViewSet):
 
         pod = serializer.save()
 
+        print type(POD_MEMBER_PERMISSIONS)
+        print type(POD_HOST_PERMISSIONS)
+
         for account in members:
-            for permission in user_permissions:
+            for permission in POD_MEMBER_PERMISSIONS:
                 assign_perm(permission, account, pod)
                 account.save()
 
@@ -65,7 +66,7 @@ class PodViewSet(viewsets.ViewSet):
                 invite_pending=False
             )
 
-        for permission in host_permissions:
+        for permission in POD_HOST_PERMISSIONS:
             assign_perm(permission, request.user, pod)
             request.user.save()
 
@@ -117,7 +118,7 @@ class PodViewSet(viewsets.ViewSet):
 
         # Add users.
         for account in added:
-            for permission in user_permissions:
+            for permission in POD_MEMBER_PERMISSIONS:
                 assign_perm(permission, account, pod)
                 account.save()
 

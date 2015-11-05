@@ -183,3 +183,7 @@ STATICFILES_DIRS = (
 
 # Guardian
 ANONYMOUS_USER_ID = -1
+
+# Pod permissions system
+POD_HOST_PERMISSIONS = ['add_accounts', 'remove_accounts', 'change_account_permissions', 'manage_pod']
+POD_MEMBER_PERMISSIONS = ['add_accounts']

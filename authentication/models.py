@@ -59,7 +59,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def __unicode__(self):
         return self.username
 
-
 # django-guardian
 def get_anonymous_user_instance(User):
     return User(username='Anonymous', created_at=datetime.date(1970, 1, 1), updated_at=datetime.date(1970, 1, 1), email='')

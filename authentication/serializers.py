@@ -12,8 +12,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
     pods = serializers.SlugRelatedField(
         many=True,
-        read_only=False,
-        queryset=Pod.objects.all(),
+        read_only=True,
         slug_field='name',
     )
 
