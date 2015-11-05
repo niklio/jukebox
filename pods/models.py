@@ -14,9 +14,9 @@ class Pod(models.Model):
 
     class Meta:
         permissions = {
-            ('add_user', 'Can add users to the pod.'),
-            ('remove_user', 'Can remove users from the pod.'),
-            ('change_user_permissions', 'Can add or remove permissions from users in the pod.'),
+            ('add_accounts', 'Can add accounts to the pod.'),
+            ('remove_accounts', 'Can remove accounts from the pod.'),
+            ('change_account_permissions', 'Can add or remove permissions from accounts in the pod.'),
             ('manage_pod', 'Can manage pod settings.'),
             # ('delete_pod', 'Can delete the pod.'),
         }

@@ -63,7 +63,7 @@ class SongViewSet(viewsets.ModelViewSet):
         if account.username != request.user.username:
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have permission to submit a song as user: {}.'.format(account.username)
+                'message': 'You do not have permission to submit a song as accounts: {}.'.format(account.username)
             }, status=status.HTTP_403_FORBIDDEN)
 
         if not account.pod or account.pod.name != pod.name:

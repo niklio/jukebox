@@ -6,15 +6,15 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from guardian.shortcuts import assign_perm, get_perms, get_perms_for_model, remove_perm
+from guardian.shortcuts import assign_perm, get_perms, get_perms_for_model, get_users_with_perms, remove_perm
 
 from authentication.models import Membership, Account
 from authentication.serializers import MembershipSerializer
 from pods.models import Pod
 from pods.serializers import PodSerializer
 
-host_permissions = ['add_user', 'remove_user', 'change_user_permissions', 'manage_pod']
-user_permissions = ['add_user']
+host_permissions = ['add_accounts', 'remove_accounts', 'change_account_permissions', 'manage_pod']
+user_permissions = ['add_accounts']
 
 class PodViewSet(viewsets.ViewSet):
     """
@@ -103,16 +103,16 @@ class PodViewSet(viewsets.ViewSet):
         added = suggested - current
 
         # Check if the adding/removing user has permissions to add/remove.
-        if added and not request.user.has_perm('pods.add_user', pod):
+        if added and not request.user.has_perm('pods.add_accounts', pod):
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have the permission to add users to the pod.'
+                'message': 'You do not have the permission to add accounts to the pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
-        if removed and not request.user.has_perm('pods.remove_user', pod):
+        if removed and not request.user.has_perm('pods.remove_accounts', pod):
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have the permission to remove users from the pod.'
+                'message': 'You do not have the permission to remove accounts from the pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
         # Add users.
@@ -126,7 +126,6 @@ class PodViewSet(viewsets.ViewSet):
                 account=account,
                 date_joined=datetime.now(),
                 invite_pending=False,
-                playing_songs=False
             )
 
         # Remove users.
@@ -162,7 +161,7 @@ class PermissionsViewSet(viewsets.ViewSet):
         pod = Pod.objects.get(name=pod_name)
         account = Account.objects.get(username=account_username)
 
-        if not get_perms_for_model(Pod).get(codename=pk):
+        if not get_perms_for_model(Pod).filter(codename=pk).exists():
             return Response({
                 'status': 'Bad Request',
                 'message': 'The permission is not valid.'
@@ -176,13 +175,13 @@ class PermissionsViewSet(viewsets.ViewSet):
         pod = Pod.objects.get(name=pod_name)
         account = Account.objects.get(username=account_username)
 
-        if not request.user.has_perm('pods.change_user_permissions', pod):
+        if not request.user.has_perm('pods.change_account_permissions', pod):
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have the permission to change permissions to users in the pod.'
+                'message': 'You do not have the permission to change permissions to accounts in the pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
-        if not get_perms_for_model(Pod).get(codename=pk):
+        if not get_perms_for_model(Pod).filter(codename=pk).exists():
             return Response({
                 'status': 'Bad Request',
                 'message': 'The permission is not valid. Check the spelling and try again.'
@@ -195,16 +194,22 @@ class PermissionsViewSet(viewsets.ViewSet):
         pod = Pod.objects.get(name=pod_name)
         account = Account.objects.get(username=account_username)
 
-        if not request.user.has_perm('pods.change_user_permissions', pod):
+        if not request.user.has_perm('pods.change_account_permissions', pod):
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have the permission to remove permissions from users in the pod.'
+                'message': 'You do not have the permission to remove permissions from accounts in the pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
-        if not get_perms_for_model(Pod).get(codename=pk):
+        if not get_perms_for_model(Pod).filter(codename=pk).exists():
             return Response({
                 'status': 'Bad Request',
                 'message': 'The permission is not valid. Check the spelling and try again.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(filter(lambda user: 'change_account_permissions' in user, get_users_with_perms(pod, attach_perms=True).values())) <= 1:
+            return Response({
+                'status': 'Bad Request',
+                'message': 'The fulfillment of this request would leave no account in the pod with the permission to add account permissions.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         if account.has_perm(pk, pod):

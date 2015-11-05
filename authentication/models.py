@@ -15,8 +15,6 @@ class Membership(models.Model):
 
 class AccountManager(BaseUserManager):
     def create_user(self, username, password=None, **kwargs):
-        if not username:
-            raise ValueError('Users must have a valid username')
 
         email_for_jwt = username + '@forjwt.com'
 
