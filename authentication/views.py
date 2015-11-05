@@ -1,10 +1,5 @@
-from django.contrib.auth.models import User, Group
-from django.shortcuts import get_object_or_404
-
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
-
-from rest_framework_jwt.views import api_settings
 
 from authentication.models import Account, Membership
 from authentication.permissions import IsAccountOwner

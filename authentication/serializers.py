@@ -4,7 +4,6 @@ from rest_framework import serializers
 
 from authentication.models import Account, Membership
 from pods.models import Pod
-from songs.models import Song
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -46,6 +45,7 @@ class AccountSerializer(serializers.ModelSerializer):
                 instance.save()
 
             return instance
+
 
 class MembershipSerializer(serializers.ModelSerializer):
 
