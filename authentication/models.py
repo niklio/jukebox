@@ -4,6 +4,15 @@ from django.db import models
 
 import datetime
 
+
+class Membership(models.Model):
+    pod = models.ForeignKey('pods.Pod')
+    account = models.ForeignKey('Account')
+    
+    date_joined = models.DateField()
+    invite_pending = models.BooleanField()
+
+
 class AccountManager(BaseUserManager):
     def create_user(self, username, password=None, **kwargs):
         if not username:
@@ -28,15 +37,6 @@ class AccountManager(BaseUserManager):
         account.save()
 
         return account
-
-
-class Membership(models.Model):
-    pod = models.ForeignKey('pods.Pod')
-    account = models.ForeignKey('Account')
-    date_joined = models.DateField()
-
-    invite_pending = models.BooleanField()
-    playing_songs = models.BooleanField()
 
 
 class Account(AbstractBaseUser, PermissionsMixin):

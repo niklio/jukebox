@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_nested.routers import NestedSimpleRouter
 
 from authentication.views import AccountViewSet
-from pods.views import PodViewSet, PodAccountPermissionsViewSet
+from pods.views import PodViewSet, PermissionsViewSet
 from songs.views import SongViewSet
 
 router = DefaultRouter()
@@ -21,7 +21,7 @@ pods_router.register(r'songs', SongViewSet)
 pods_router.register(r'accounts', AccountViewSet, base_name='accounts')
 
 permissions_router = NestedSimpleRouter(pods_router, r'accounts', lookup='account')
-permissions_router.register(r'permissions', PodAccountPermissionsViewSet)
+permissions_router.register(r'permissions', PermissionsViewSet)
 
 urlpatterns = patterns(
     '',
@@ -37,4 +37,5 @@ urlpatterns = patterns(
     url(r'^api/', include(router.urls)),
     url(r'^api/', include(accounts_router.urls)),
     url(r'^api/', include(pods_router.urls)),
+    url(r'^api/', include(permissions_router.urls)),
 )
