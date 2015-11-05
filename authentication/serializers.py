@@ -49,17 +49,29 @@ class AccountSerializer(serializers.ModelSerializer):
 
 class MembershipSerializer(serializers.ModelSerializer):
 
+    pod = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='name'
+    )
+
+    account = serializers.SlugRelatedField(
+        many=False,
+        read_only=True,
+        slug_field='username'
+    )
+
     class Meta:
         model = Membership
         fields = (
+            'id',
             'pod',
             'account',
             'date_joined',
             'invite_pending',
         )
         read_only_fields = (
-            'pod',
-            'account',
+            'id',
             'date_joined',
             'invite_pending',
         )
