@@ -4,7 +4,6 @@ from rest_framework import serializers
 
 from authentication.models import Account
 from pods.models import Pod
-from songs.models import Song
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -46,21 +45,3 @@ class AccountSerializer(serializers.ModelSerializer):
                 instance.save()
 
             return instance
-
-class PodAccountSerializer(serializers.ModelSerializer):
-
-    def __init__(self):
-        super(PodAccountSerializer, self).__init__()
-
-    class Meta:
-        model = Account
-        fields = (
-            'id',
-            'username',
-            'songs',
-            'permissions',
-        )
-        read_only_fields = (
-            'id',
-            'username',
-        )

@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('updated_at', models.DateTimeField(auto_now=True)),
             ],
             options={
-                'permissions': set([('delete_pod', 'Can delete the pod.'), ('manage_pod', 'Can manage pod settings.'), ('remove_user', 'Can remove users from the pod.'), ('change_user_permissions', 'Can add or remove permissions from users in the pod.'), ('add_user', 'Can add users to the pod.')]),
+                'permissions': set([('add_user', 'Can add users to the pod.'), ('manage_pod', 'Can manage pod settings.'), ('remove_user', 'Can remove users from the pod.'), ('change_user_permissions', 'Can add or remove permissions from users in the pod.')]),
             },
         ),
     ]
