@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from rest_framework import serializers
 
-from authentication.models import Account
+from authentication.models import Account, Membership
 from pods.models import Pod
 from songs.models import Song
 
@@ -47,20 +47,19 @@ class AccountSerializer(serializers.ModelSerializer):
 
             return instance
 
-class PodAccountSerializer(serializers.ModelSerializer):
-
-    def __init__(self):
-        super(PodAccountSerializer, self).__init__()
+class MembershipSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Account
+        model = Membership
         fields = (
-            'id',
-            'username',
-            'songs',
-            'permissions',
+            'pod',
+            'account',
+            'date_joined',
+            'invite_pending',
         )
         read_only_fields = (
-            'id',
-            'username',
+            'pod',
+            'account',
+            'date_joined',
+            'invite_pending',
         )

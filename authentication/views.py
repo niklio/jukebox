@@ -8,7 +8,7 @@ from rest_framework_jwt.views import api_settings
 
 from authentication.models import Account, Membership
 from authentication.permissions import IsAccountOwner
-from authentication.serializers import AccountSerializer, PodAccountSerializer
+from authentication.serializers import AccountSerializer
 from pods.models import Pod
 
 
