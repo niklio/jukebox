@@ -62,8 +62,7 @@ class PodViewSet(viewsets.ViewSet):
                 pod=pod,
                 account=account,
                 date_joined=datetime.now(),
-                invite_pending=False,
-                playing_songs=False
+                invite_pending=False
             )
 
         for permission in host_permissions:
@@ -157,7 +156,7 @@ class PermissionsViewSet(viewsets.ViewSet):
     def list(self, request, pod_name=None, account_username=None):
         pod = Pod.objects.get(name=pod_name)
         account = Account.objects.get(username=account_username)
-        return Response({'permissions': get_perms(account, pod)}, status=status.HTTP_200_OK)
+        return Response(get_perms(account, pod), status=status.HTTP_200_OK)
 
     def retrieve(self, request, pod_name=None, account_username=None, pk=None):
         pod = Pod.objects.get(name=pod_name)
@@ -166,13 +165,12 @@ class PermissionsViewSet(viewsets.ViewSet):
         if not get_perms_for_model(Pod).get(codename=pk):
             return Response({
                 'status': 'Bad Request',
-                'message': 'The permission is not valid. Check the spelling and try again.'
+                'message': 'The permission is not valid.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         if account.has_perm(pk, pod):
             return Response(status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
     def update(self, request, pod_name=None, account_username=None, pk=None):
         pod = Pod.objects.get(name=pod_name)
@@ -181,7 +179,7 @@ class PermissionsViewSet(viewsets.ViewSet):
         if not request.user.has_perm('pods.change_user_permissions', pod):
             return Response({
                 'status': 'Forbidden',
-                'message': 'You do not have the permission to add permissions to users in the pod.'
+                'message': 'You do not have the permission to change permissions to users in the pod.'
             }, status=status.HTTP_403_FORBIDDEN)
 
         if not get_perms_for_model(Pod).get(codename=pk):
@@ -212,5 +210,4 @@ class PermissionsViewSet(viewsets.ViewSet):
         if account.has_perm(pk, pod):
             remove_perm(pk, account, pod)
             return Response(status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_404_NOT_FOUND)
