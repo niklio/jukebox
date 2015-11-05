@@ -159,15 +159,9 @@ class PermissionsViewSet(viewsets.ViewSet):
         account = Account.objects.get(username=account_username)
         return Response({'permissions': get_perms(account, pod)}, status=status.HTTP_200_OK)
 
-    def get(self, request, pod_name=None, account_username=None, pk=None):
+    def retrieve(self, request, pod_name=None, account_username=None, pk=None):
         pod = Pod.objects.get(name=pod_name)
         account = Account.objects.get(username=account_username)
-
-        if not request.user.has_perm('pods.change_user_permissions', pod):
-            return Response({
-                'status': 'Forbidden',
-                'message': 'You do not have the permission to remove permissions from users in the pod.'
-            }, status=status.HTTP_403_FORBIDDEN)
 
         if not get_perms_for_model(Pod).get(codename=pk):
             return Response({
