@@ -18,7 +18,10 @@ accounts_router.register(r'songs', SongViewSet)
 
 pods_router = NestedSimpleRouter(router, r'pods', lookup='pod')
 pods_router.register(r'songs', SongViewSet)
-pods_router.register(r'users/{lookup}/permissions', PodAccountPermissionsViewSet)
+pods_router.register(r'accounts', AccountViewSet, base_name='accounts')
+
+permissions_router = NestedSimpleRouter(pods_router, r'accounts', lookup='account')
+permissions_router.register(r'permissions', PodAccountPermissionsViewSet)
 
 urlpatterns = patterns(
     '',

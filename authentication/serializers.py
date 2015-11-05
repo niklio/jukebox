@@ -3,12 +3,20 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from rest_framework import serializers
 
 from authentication.models import Account
+from pods.models import Pod
 from songs.models import Song
 
 
 class AccountSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=False)
+
+    pods = serializers.SlugRelatedField(
+        many=True,
+        read_only=False,
+        queryset=Pod.objects.all(),
+        slug_field='name',
+    )
 
     class Meta:
         model = Account

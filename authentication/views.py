@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from rest_framework_jwt.views import api_settings
 
-from authentication.models import Account
+from authentication.models import Account, Membership
 from authentication.permissions import IsAccountOwner
 from authentication.serializers import AccountSerializer, PodAccountSerializer
 from pods.models import Pod
@@ -34,7 +34,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         
         if pod_name:
             pod = Pod.objects.get(name=pod_name)
-            queryset = queryset.filter(pod=pod)
+            queryset = map(lambda membership: membership.account, Membership.objects.filter(pod=pod))
 
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)

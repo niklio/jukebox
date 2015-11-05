@@ -46,16 +46,29 @@ class PodViewSet(viewsets.ViewSet):
                 serializer.errors,
                 status=status.HTTP_400_BAD_REQUEST
             )
-        print serializer.validated_data
+        
+        members = serializer.validated_data.pop('members', None)
+        if request.user not in members:
+            members.append(request.user)
+
         pod = serializer.save()
 
-        # Make the user a host of the pod.
-        account = request.user
+        for account in members:
+            for permission in user_permissions:
+                assign_perm(permission, account, pod)
+                account.save()
+
+            Membership.objects.create(
+                pod=pod,
+                account=account,
+                date_joined=datetime.now(),
+                invite_pending=False,
+                playing_songs=False
+            )
+
         for permission in host_permissions:
-            assign_perm(permission, account, pod)
-        Membership.objects.create(pod=pod, account=account, date_joined=datetime.now(), invite_pending=False,
-                                  playing_songs=False)
-        account.save()
+            assign_perm(permission, request.user, pod)
+            request.user.save()
 
         return Response(
             serializer.data,
@@ -72,7 +85,6 @@ class PodViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        print serializer.validated_data.values()
         name, members = serializer.validated_data.values()
 
         # Change the pod name.
@@ -109,8 +121,14 @@ class PodViewSet(viewsets.ViewSet):
             for permission in user_permissions:
                 assign_perm(permission, account, pod)
                 account.save()
-            Membership.objects.create(pod=pod, account=account, date_joined=datetime.now(), invite_pending=False,
-                                      playing_songs=False)
+
+            Membership.objects.create(
+                pod=pod,
+                account=account,
+                date_joined=datetime.now(),
+                invite_pending=False,
+                playing_songs=False
+            )
 
         # Remove users.
         Membership.objects.filter(account__in=removed).delete()
