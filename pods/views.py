@@ -6,14 +6,14 @@ from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm, get_perms, get_perms_for_model, remove_perm
 
 from authentication.models import Membership, Account
 from authentication.serializers import MembershipSerializer
 from pods.models import Pod
 from pods.serializers import PodSerializer
 
-host_permissions = ['add_user', 'remove_user', 'change_user_permissions', 'manage_pod', 'delete_pod']
+host_permissions = ['add_user', 'remove_user', 'change_user_permissions', 'manage_pod']
 user_permissions = ['add_user']
 
 class PodViewSet(viewsets.ViewSet):
@@ -150,8 +150,73 @@ class PodViewSet(viewsets.ViewSet):
         }, status=status.HTTP_403_FORBIDDEN)
 
 
-class PermissionsViewSet(viewsets.ModelViewSet):
+class PermissionsViewSet(viewsets.ViewSet):
     authentication_classes = (JSONWebTokenAuthentication,)
     queryset = Membership.objects.all()
-    serializer_class = MembershipSerializer
 
+    def list(self, request, pod_name=None, account_username=None):
+        pod = Pod.objects.get(name=pod_name)
+        account = Account.objects.get(username=account_username)
+        return Response({'permissions': get_perms(account, pod)}, status=status.HTTP_200_OK)
+
+    def get(self, request, pod_name=None, account_username=None, pk=None):
+        pod = Pod.objects.get(name=pod_name)
+        account = Account.objects.get(username=account_username)
+
+        if not request.user.has_perm('pods.change_user_permissions', pod):
+            return Response({
+                'status': 'Forbidden',
+                'message': 'You do not have the permission to remove permissions from users in the pod.'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        if not get_perms_for_model(Pod).get(codename=pk):
+            return Response({
+                'status': 'Bad Request',
+                'message': 'The permission is not valid. Check the spelling and try again.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if account.has_perm(pk, pod):
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def update(self, request, pod_name=None, account_username=None, pk=None):
+        pod = Pod.objects.get(name=pod_name)
+        account = Account.objects.get(username=account_username)
+
+        if not request.user.has_perm('pods.change_user_permissions', pod):
+            return Response({
+                'status': 'Forbidden',
+                'message': 'You do not have the permission to add permissions to users in the pod.'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        if not get_perms_for_model(Pod).get(codename=pk):
+            return Response({
+                'status': 'Bad Request',
+                'message': 'The permission is not valid. Check the spelling and try again.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        assign_perm(pk, account, pod)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def destroy(self, request, pod_name=None, account_username=None, pk=None):
+        pod = Pod.objects.get(name=pod_name)
+        account = Account.objects.get(username=account_username)
+
+        if not request.user.has_perm('pods.change_user_permissions', pod):
+            return Response({
+                'status': 'Forbidden',
+                'message': 'You do not have the permission to remove permissions from users in the pod.'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        if not get_perms_for_model(Pod).get(codename=pk):
+            return Response({
+                'status': 'Bad Request',
+                'message': 'The permission is not valid. Check the spelling and try again.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        if account.has_perm(pk, pod):
+            remove_perm(pk, account, pod)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
