@@ -10,13 +10,6 @@ class AccountSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, required=False)
 
-    submitted_songs = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='id',
-    )
-
-
     class Meta:
         model = Account
         fields = (
@@ -26,18 +19,16 @@ class AccountSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
             'password',
-            'submitted_songs',
         )
         read_only_fields = (
+            'id',
             'pods',
             'created_at',
             'updated_at',
         )
 
-
         def create(self, validated_data):
             return Account.objects.create(**validated_data)
-
 
         def update(self, instance, validated_data):
             password = validated_data.get('password', None)
@@ -47,4 +38,21 @@ class AccountSerializer(serializers.ModelSerializer):
                 instance.save()
 
             return instance
-    
+
+class PodAccountSerializer(serializers.ModelSerializer):
+
+    def __init__(self):
+        super(PodAccountSerializer, self).__init__()
+
+    class Meta:
+        model = Account
+        fields = (
+            'id',
+            'username',
+            'songs',
+            'permissions',
+        )
+        read_only_fields = (
+            'id',
+            'username',
+        )

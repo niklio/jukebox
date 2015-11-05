@@ -1,15 +1,14 @@
 from datetime import datetime
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 
 from rest_framework import permissions, viewsets, status
 from rest_framework.response import Response
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework.decorators import detail_route, list_route
 
-from guardian.shortcuts import assign_perm, get_perms
+from guardian.shortcuts import assign_perm
 
-from authentication.models import Account, Membership
+from authentication.models import Membership, Account
 from pods.models import Pod
 from pods.serializers import PodSerializer
 
@@ -131,3 +130,11 @@ class PodViewSet(viewsets.ViewSet):
             'status': 'Forbidden',
             'message': 'You do not have the permission to delete the pod.'
         }, status=status.HTTP_403_FORBIDDEN)
+
+class PodAccountPermissionsViewSet(viewsets.ViewSet):
+    authentication_classes = (JSONWebTokenAuthentication,)
+    queryset = Account.objects.all()
+
+    def list(self, request, pk=None, pods_pk=None):
+        print pk, pods_pk
+        return Response(status=status.HTTP_204_NO_CONTENT)
