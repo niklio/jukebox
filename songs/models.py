@@ -10,8 +10,7 @@ class Song(models.Model):
     album = models.CharField(max_length=255)
     artist = models.CharField(max_length=255)
 
-    played = models.BooleanField(default=False)
-    skip = models.BooleanField(default=False)
+    queued = models.BooleanField(default=True)
 
     pod = models.ForeignKey(
         Pod,
@@ -26,8 +25,3 @@ class Song(models.Model):
 
     def __unicode__(self):
         return self.title
-
-    @property
-    def queued(self):
-        return not self.skip and not self.played
-    
