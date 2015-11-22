@@ -6,6 +6,11 @@ from authentication.permissions import IsAccountOwner
 from authentication.serializers import AccountSerializer
 from pods.models import Pod
 
+from guardian.shortcuts import assign_perm, get_perms
+
+from collections import defaultdict
+
+permissions_list = ['change_account_permissions', 'delete_pod', 'manage_pod', 'remove_accounts', 'add_accounts']
 
 class AccountViewSet(viewsets.ModelViewSet):
     """
@@ -17,12 +22,12 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
-            return (permissions.AllowAny(),)
+            return permissions.AllowAny(),
 
         if self.request.method == 'POST':
-            return (permissions.AllowAny(),)
+            return permissions.AllowAny(),
 
-        return (permissions.IsAuthenticated(), IsAccountOwner())
+        return permissions.IsAuthenticated(), IsAccountOwner()
 
     def list(self, request, pod_name=None):
         queryset = Account.objects.all()
@@ -46,3 +51,32 @@ class AccountViewSet(viewsets.ModelViewSet):
                 headers={'Location': '/api/accounts/{0}'.format(serializer.validated_data['username'])}
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, username=None):
+        account = Account.objects.get(username=username)
+        memberships = Membership.objects.filter(account=account).all()
+
+        pods = [membership.pod for membership in memberships]
+        for pod in pods:
+            permissions_hashmap = defaultdict(int)
+            pod_members = [membership.account for membership in Membership.objects.filter(pod=pod)]
+            for member in pod_members:
+                if not member == account:
+                    for permission in get_perms(member, pod):
+                        permissions_hashmap[permission] += 1
+
+            assigned = False
+            for index, permission in enumerate(permissions_list):
+                if permissions_hashmap[permission] == 0:
+                    for member in pod_members:
+                        if index+1 < len(permissions_list) and permissions_list[index+1] in get_perms(member, pod) or \
+                           permission == 'add_accounts':
+                            assign_perm('change_account_permissions', member, pod)
+                            assigned = True
+                if assigned:
+                    break
+            else:
+                pod.delete()
+        account.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

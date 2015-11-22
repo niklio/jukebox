@@ -13,7 +13,7 @@ from authentication.serializers import MembershipSerializer
 from pods.models import Pod
 from pods.serializers import PodSerializer
 
-host_permissions = ['add_accounts', 'remove_accounts', 'change_account_permissions', 'manage_pod']
+host_permissions = ['change_account_permissions', 'delete_pod', 'manage_pod', 'remove_accounts', 'add_accounts']
 user_permissions = ['add_accounts']
 
 class PodViewSet(viewsets.ViewSet):
@@ -26,6 +26,9 @@ class PodViewSet(viewsets.ViewSet):
     serializer_class = PodSerializer
 
     def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return permissions.AllowAny(),
+
         return permissions.IsAuthenticated(),
 
     def list(self, request):
@@ -71,7 +74,8 @@ class PodViewSet(viewsets.ViewSet):
 
         return Response(
             serializer.data,
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_201_CREATED,
+            headers={'Location': '/api/pods/{0}'.format(serializer.validated_data['name'])}
         )
 
     def update(self, request, name=None):
@@ -149,8 +153,14 @@ class PodViewSet(viewsets.ViewSet):
 
 
 class PermissionsViewSet(viewsets.ViewSet):
-    authentication_classes = (JSONWebTokenAuthentication,)
+    authentication_classes = JSONWebTokenAuthentication,
     queryset = Membership.objects.all()
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return permissions.AllowAny(),
+
+        return permissions.IsAuthenticated(),
 
     def list(self, request, pod_name=None, account_username=None):
         pod = Pod.objects.get(name=pod_name)
@@ -206,7 +216,8 @@ class PermissionsViewSet(viewsets.ViewSet):
                 'message': 'The permission is not valid. Check the spelling and try again.'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        if len(filter(lambda user: 'change_account_permissions' in user, get_users_with_perms(pod, attach_perms=True).values())) <= 1:
+        if len(filter(lambda user: 'change_account_permissions' in user,
+                      get_users_with_perms(pod, attach_perms=True).values())) <= 1 and pk == 'change_account_permissions':
             return Response({
                 'status': 'Bad Request',
                 'message': 'The fulfillment of this request would leave no account in the pod with the permission to add account permissions.'
