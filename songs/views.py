@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 
 from rest_framework import permissions, viewsets, views, status
 from rest_framework.response import Response
+from rest_framework.decorators import list_route
 
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
@@ -13,16 +14,39 @@ from songs.models import Song
 from songs.permissions import IsSubmitter
 from songs.serializers import SongSerializer
 
-client = soundcloud.Client(client_id='13b1f6ea8ef9dd2d629f3c0e1707f16b')
-
-class NextSong(views.APIView):
+class SongViewSet(viewsets.ViewSet):
+    """
+    API endpoint that allows songs to be viewed or edited.
+    """
+    lookup_field = 'id'
     permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (JSONWebTokenAuthentication,)
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer
 
-    def get(self, request, name):
+    client = soundcloud.Client(client_id='13b1f6ea8ef9dd2d629f3c0e1707f16b')
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return (permissions.IsAuthenticated(),)
+
+        if self.request.method == 'POST':
+            return (permissions.IsAuthenticated(),)
+
+        return (permissions.IsAuthenticated(), IsSubmitter())
+
+    @list_route()
+    def next(self, request, account_name=None, pod_name=None):
         queryset = Pod.objects.all()
-        pod = get_object_or_404(queryset, name=name)
+
+        if pod_name:
+            pod = get_object_or_404(queryset, name=pod_name)
 
         songs = pod.songs.filter(queued=True).order_by('id')
+
+        if account_name:
+            songs.filter(submitted_by=account_name)
+
         if not songs.exists():
             return Response({
                 'status': 'not found',
@@ -40,27 +64,6 @@ class NextSong(views.APIView):
         data.update({'stream_url': stream_url.location})
 
         return Response(data)
-
-
-class SongViewSet(viewsets.ViewSet):
-    """
-    API endpoint that allows songs to be viewed or edited.
-    """
-    lookup_field = 'id'
-    permission_classes = (permissions.IsAuthenticated,)
-    authentication_classes = (JSONWebTokenAuthentication,)
-    queryset = Song.objects.all()
-    serializer_class = SongSerializer
-
-
-    def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
-            return (permissions.IsAuthenticated(),)
-
-        if self.request.method == 'POST':
-            return (permissions.IsAuthenticated(),)
-
-        return (permissions.IsAuthenticated(), IsSubmitter())
 
 
     def list(self, request, account_name=None, pod_name=None):
