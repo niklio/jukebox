@@ -48,7 +48,6 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(
                 serializer.validated_data,
                 status=status.HTTP_201_CREATED,
-                headers={'Location': '/api/accounts/{0}'.format(serializer.validated_data['username'])}
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

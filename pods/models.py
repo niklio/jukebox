@@ -18,5 +18,4 @@ class Pod(models.Model):
             ('remove_accounts', 'Can remove accounts from the pod.'),
             ('change_account_permissions', 'Can add or remove permissions from accounts in the pod.'),
             ('manage_pod', 'Can manage pod settings.'),
-            # ('delete_pod', 'Can delete the pod.'),
         }

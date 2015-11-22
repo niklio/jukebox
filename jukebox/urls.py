@@ -14,7 +14,7 @@ router.register(r'pods', PodViewSet)
 router.register(r'songs', SongViewSet)
 
 accounts_router = NestedSimpleRouter(router, r'accounts', lookup='account')
-accounts_router.register(r'songs', SongViewSet)
+accounts_router.register('songs', SongViewSet)
 
 pods_router = NestedSimpleRouter(router, r'pods', lookup='pod')
 pods_router.register(r'songs', SongViewSet)
