@@ -28,6 +28,7 @@ class AccountSerializer(serializers.ModelSerializer):
         )
         read_only_fields = (
             'id',
+            'username',
             'pods',
             'created_at',
             'updated_at',
