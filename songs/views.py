@@ -75,7 +75,7 @@ class SongViewSet(viewsets.ViewSet):
         if pod_name:
             queryset.filter(pod=pod_name)
 
-        queryset.filter(queued=True)
+        queryset.filter(queued=True).order_by('id')
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
