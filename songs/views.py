@@ -54,11 +54,11 @@ class SongViewSet(viewsets.ViewSet):
             }, status=status.HTTP_404_NOT_FOUND)
 
         next = songs[0]
-        next.played = True
+        next.queued = False
         next.save()
 
-        track = client.get('tracks', id=next.song_id)
-        stream_url = client.get(track.stream_url, allow_redirects=False)
+        track = self.client.get('tracks', id=next.song_id)[0]
+        stream_url = self.client.get(track.stream_url, allow_redirects=False)
 
         data = SongSerializer(next).data
         data.update({'stream_url': stream_url.location})
@@ -73,7 +73,9 @@ class SongViewSet(viewsets.ViewSet):
             queryset.filter(submitted_by=account_name)
 
         if pod_name:
-            queryset.filter(pod=pod_name)
+            pod = get_object_or_404(Pod.objects.all(), name=pod_name)
+            queryset.filter(pod=pod)
+            print queryset
 
         queryset.filter(queued=True).order_by('id')
         serializer = self.serializer_class(queryset, many=True)
