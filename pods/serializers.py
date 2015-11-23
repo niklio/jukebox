@@ -13,17 +13,10 @@ class PodSerializer(serializers.ModelSerializer):
         slug_field='username',
     )
 
-    songs = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='id',
-    )
-
     class Meta:
         model = Pod
         fields = (
             'id',
             'name',
             'members',
-            'songs',
         )
