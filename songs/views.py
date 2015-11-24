@@ -57,7 +57,7 @@ class SongViewSet(viewsets.ViewSet):
         next.queued = False
         next.save()
 
-        track = self.client.get('tracks', id=next.song_id)[0]
+        track = self.client.get('/tracks', q=next.title)[0]
         stream_url = self.client.get(track.stream_url, allow_redirects=False)
 
         data = SongSerializer(next).data
